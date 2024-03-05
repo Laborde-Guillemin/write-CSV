@@ -1,8 +1,8 @@
 # write-CSV
 
-| Affaire | En cours | Fait |  
-| :--------- | :----- | :-------- |  
-| Led | second | troisième |  
-| Connections I2C | second | troisième |
-| BME-280 | second | troisième |
-| CArd SD | second | troisième |  
+| Affaire | Etat |  
+| :---------: | :-----: |
+| Led | ✅ |  
+| I2C | ✅ |
+| BME-280 | En cours |
+| Card SD | |
