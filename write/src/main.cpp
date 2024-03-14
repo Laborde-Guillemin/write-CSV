@@ -1,19 +1,20 @@
-/*
-  Rui Santos
-  Complete project details at https://RandomNerdTutorials.com/esp32-microsd-card-arduino/
-  
-  This sketch was mofidied from: Examples > SD(esp32) > SD_Test
+/* 
+                 _   __              _               ____   ___
+ _    __  ____  (_) / /_ ___        (_)  ___        / __/  / _ \
+| |/|/ / / __/ / / / __// -_)      / /  / _ \      _\ \   / // /
+|__,__/ /_/   /_/  \__/ \__/      /_/  /_//_/     /___/  /____/
 */
+
 /*Bibliothèque*/
 #include "FS.h"
 #include "SD.h"
 #include "SPI.h"
 #include "time.h"
+
 /*Port SPI*/
 #define SCK  18
 #define MISO  19
 #define MOSI  23
-//CS de la carte SD
 #define CS  32
 
 //Variable de fonctionement
@@ -27,7 +28,10 @@ int CO2 = 9;
 int PM_25 = 100;
 int PM_1 = 55 ;
 int PM_10 = 12 ;
+
+//Initialisation variable 
 String dataMessage;
+int Refresh = 60000;
 
 
 SPIClass spi = SPIClass(VSPI);
@@ -75,6 +79,7 @@ void writeFile(fs::FS &fs, const char * path, const char * message){
   }
   file.close();
 }
+
 /*Rajout dans le fichier*/
 void appendFile(fs::FS &fs, const char * path, const char * message){
   Serial.printf("Appending to file: %s\n", path);
@@ -114,5 +119,5 @@ void loop(){
   Serial.print("Sauvegarde: ");
   Serial.println(dataMessage);
   appendFile(SD, "/Valeur.csv", dataMessage.c_str());
-  delay(10000);
+  delay(Refresh);
 }
