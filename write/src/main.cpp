@@ -8,6 +8,7 @@
 #include "FS.h"
 #include "SD.h"
 #include "SPI.h"
+#include "time.h"
 /*Port SPI*/
 #define SCK  18
 #define MISO  19
@@ -15,11 +16,50 @@
 //CS de la carte SD
 #define CS  32
 
-/*Appel de Fonction*/
-#include "cleardos.h"
+//Variable de fonctionement
+int Date = 14;
+int Heure = 18;
+int Temp = 19;
+int Hum = 19 ;
+int COV = 2;
+int Alde = 5;
+int CO2 = 9;
+int PM_25 = 100;
+int PM_1 = 55 ;
+int PM_10 = 12 ;
+String dataMessage;
+
 
 SPIClass spi = SPIClass(VSPI);
 
+/*Initialisation de la carte SD*/
+void initSDCard(){
+  spi.begin(SCK, MISO, MOSI, CS);
+  if (!SD.begin(CS,spi,80000000)) {
+    Serial.println("Card Mount Failed");
+    return;
+  }
+  uint8_t cardType = SD.cardType();
+
+  if(cardType == CARD_NONE){
+    Serial.println("No SD card attached");
+    return;
+  }
+  Serial.print("SD Card Type: ");
+  if(cardType == CARD_MMC){
+    Serial.println("MMC");
+  } else if(cardType == CARD_SD){
+    Serial.println("SDSC");
+  } else if(cardType == CARD_SDHC){
+    Serial.println("SDHC");
+  } else {
+    Serial.println("UNKNOWN");
+  }
+  uint64_t cardSize = SD.cardSize() / (1024 * 1024);
+  Serial.printf("SD Card Size: %lluMB\n", cardSize);
+}
+
+/*Écriture du fichier*/
 void writeFile(fs::FS &fs, const char * path, const char * message){
   Serial.printf("Writing file: %s\n", path);
 
@@ -35,7 +75,7 @@ void writeFile(fs::FS &fs, const char * path, const char * message){
   }
   file.close();
 }
-
+/*Rajout dans le fichier*/
 void appendFile(fs::FS &fs, const char * path, const char * message){
   Serial.printf("Appending to file: %s\n", path);
 
@@ -52,70 +92,27 @@ void appendFile(fs::FS &fs, const char * path, const char * message){
   file.close();
 }
 
+void setup(){
+  Serial.begin(9600);
+  initSDCard();
 
-void testFileIO(fs::FS &fs, const char * path){
-  File file = fs.open(path);
-  static uint8_t buf[512];
-  size_t len = 0;
-  uint32_t start = millis();
-  uint32_t end = start;
-  if(file){
-    len = file.size();
-    size_t flen = len;
-    start = millis();
-    while(len){
-      size_t toRead = len;
-      if(toRead > 512){
-        toRead = 512;
-      }
-      file.read(buf, toRead);
-      len -= toRead;
-    }
-    end = millis() - start;
-    Serial.printf("%u bytes read for %u ms\n", flen, end);
-    file.close();
-  } else {
-    Serial.println("Failed to open file for reading");
+  File file = SD.open("/Valeur.csv");
+
+  if(!file) {
+    Serial.println("File doesn't exist");
+    Serial.println("Creating file...");
+    writeFile(SD, "/Valeur.csv", "Date; Heure; Température; Humidité; Indice de COV; Forme Aldéhyde; CO²; PM_2.5; PM_1; PM_10 \r\n");
   }
-
-
-  file = fs.open(path, FILE_WRITE);
-  if(!file){
-    Serial.println("Failed to open file for writing");
-    return;
+  else {
+    Serial.println("File already exists");  
   }
-
-  size_t i;
-  start = millis();
-  for(i=0; i<2048; i++){
-    file.write(buf, 512);
-  }
-  end = millis() - start;
-  Serial.printf("%u bytes written for %u ms\n", 2048 * 512, end);
   file.close();
 }
 
-void setup(){
-  Serial.begin(9600);
-  spi.begin(SCK, MISO, MOSI, CS);
-
-  if (!SD.begin(CS,spi,80000000)) {
-    Serial.println("Card Mount Failed");
-    return;
-  }
-  uint8_t cardType = SD.cardType();
-
-  if(cardType == CARD_NONE){
-    Serial.println("No SD card attached");
-    return;
-  }
-  uint64_t cardSize = SD.cardSize() / (1024 * 1024);
-  Serial.printf("SD Card Size: %lluMB\n", cardSize);
-  writeFile(SD, "/hello.csv", "Hello ");
-  Serial.printf("Total space: %lluMB\n", SD.totalBytes() / (1024 * 1024));
-  Serial.printf("Used space: %lluMB\n", SD.usedBytes() / (1024 * 1024));
-}
-
 void loop(){
-
+  dataMessage = String(Date) +";"+ String(Heure) +";"+ String(Temp) + ";" + String(Hum) + ";" + String(COV) + ";" + String(Alde) + ";" + String(CO2) + ";" + String(PM_25) + ";" + String(PM_1) + ";" + String(PM_10) + "\r\n";
+  Serial.print("Sauvegarde: ");
+  Serial.println(dataMessage);
+  appendFile(SD, "/Valeur.csv", dataMessage.c_str());
+  delay(10000);
 }
