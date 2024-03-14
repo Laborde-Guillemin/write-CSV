@@ -109,15 +109,9 @@ void setup(){
     Serial.println("No SD card attached");
     return;
   }
-
-
-
   uint64_t cardSize = SD.cardSize() / (1024 * 1024);
   Serial.printf("SD Card Size: %lluMB\n", cardSize);
-
-  writeFile(SD, "/hello.txt", "Hello ");
-  appendFile(SD, "/hello.txt", "World!\n");
-  testFileIO(SD, "/test.txt");
+  writeFile(SD, "/hello.csv", "Hello ");
   Serial.printf("Total space: %lluMB\n", SD.totalBytes() / (1024 * 1024));
   Serial.printf("Used space: %lluMB\n", SD.usedBytes() / (1024 * 1024));
 }
