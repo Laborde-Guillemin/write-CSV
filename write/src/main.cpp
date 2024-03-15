@@ -31,7 +31,7 @@ int PM_10 = 12 ;
 
 //Initialisation variable 
 String dataMessage;
-int Refresh = 60000;
+int Refresh = 60000; // 1min
 
 
 SPIClass spi = SPIClass(VSPI);
@@ -98,7 +98,7 @@ void appendFile(fs::FS &fs, const char * path, const char * message){
 }
 
 void setup(){
-  Serial.begin(9600);
+  Serial.begin(115200);
   initSDCard();
 
   File file = SD.open("/Valeur.csv");
