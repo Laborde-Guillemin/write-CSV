@@ -1,9 +1,8 @@
-/* 
-                 _   __              _               ____   ___
+/*               _   __              _               ____   ___
  _    __  ____  (_) / /_ ___        (_)  ___        / __/  / _ \
 | |/|/ / / __/ / / / __// -_)      / /  / _ \      _\ \   / // /
-|__,__/ /_/   /_/  \__/ \__/      /_/  /_//_/     /___/  /____/
-*/
+|__,__/ /_/   /_/  \__/ \__/      /_/  /_//_/     /___/  /____/ */
+
 
 /*Bibliothèque*/
 #include "FS.h"
@@ -32,8 +31,6 @@ int PM_10 = 12 ;
 //Initialisation variable 
 String dataMessage;
 int Refresh = 60000; // 1min
-
-
 SPIClass spi = SPIClass(VSPI);
 
 /*Initialisation de la carte SD*/
@@ -97,12 +94,9 @@ void appendFile(fs::FS &fs, const char * path, const char * message){
   file.close();
 }
 
-void setup(){
-  Serial.begin(115200);
-  initSDCard();
-
+/*Préparation du fichier d'enregistrement*/
+void initFile(){
   File file = SD.open("/Valeur.csv");
-
   if(!file) {
     Serial.println("File doesn't exist");
     Serial.println("Creating file...");
@@ -114,10 +108,21 @@ void setup(){
   file.close();
 }
 
-void loop(){
+/*Écriture des lignes d'informations dans la carte SD*/
+void ecriture(){
   dataMessage = String(Date) +";"+ String(Heure) +";"+ String(Temp) + ";" + String(Hum) + ";" + String(COV) + ";" + String(Alde) + ";" + String(CO2) + ";" + String(PM_25) + ";" + String(PM_1) + ";" + String(PM_10) + "\r\n";
   Serial.print("Sauvegarde: ");
   Serial.println(dataMessage);
   appendFile(SD, "/Valeur.csv", dataMessage.c_str());
+}
+
+void setup(){
+  Serial.begin(115200);
+  initSDCard();
+  initFile();
+}
+
+void loop(){
+  ecriture();
   delay(Refresh);
 }
