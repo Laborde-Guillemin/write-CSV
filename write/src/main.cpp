@@ -16,21 +16,11 @@
 #define MOSI  23
 #define CS  32
 
-//Variable de fonctionement
-int Date = 14;
-int Heure = 18;
-int Temp = 19;
-int Hum = 19 ;
-int COV = 2;
-int Alde = 5;
-int CO2 = 9;
-int PM_25 = 100;
-int PM_1 = 55 ;
-int PM_10 = 12 ;
+
 
 //Initialisation variable 
 String dataMessage;
-int Refresh = 60000; // 1min
+int Refresh = 500; // 1min = 60000
 SPIClass spi = SPIClass(VSPI);
 
 /*Initialisation de la carte SD*/
@@ -110,6 +100,17 @@ void initFile(){
 
 /*Écriture des lignes d'informations dans la carte SD*/
 void ecriture(){
+  //Variable de fonctionement
+int Date = rand()%31 +1;
+int Heure = rand()%24 +1;
+int Temp = rand()%35 +1;
+int Hum = rand()%99 +1;
+int COV = rand()%25000 +1;
+int Alde = rand();
+int CO2 = rand()%1000 +1;
+int PM_25 = rand();
+int PM_1 = rand();
+int PM_10 = rand();
   dataMessage = String(Date) +";"+ String(Heure) +";"+ String(Temp) + ";" + String(Hum) + ";" + String(COV) + ";" + String(Alde) + ";" + String(CO2) + ";" + String(PM_25) + ";" + String(PM_1) + ";" + String(PM_10) + "\r\n";
   Serial.print("Sauvegarde: ");
   Serial.println(dataMessage);
